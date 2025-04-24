@@ -1,2 +1,1 @@
-# Конфигурация Telegram-бота
-API_TOKEN = 'YOUR_TOKEN_HERE'
+API_TOKEN = '7729733399:AAGRQH42MQYrl80VdzfCEWXCkafSR4Z8dvA'
