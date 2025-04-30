@@ -1,24 +1,32 @@
-import os
 import telebot
+import os
 from flask import Flask, request
 
-API_TOKEN = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot(API_TOKEN)
+TOKEN = os.environ.get("BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
 app = Flask(__name__)
 
+# Обработка команды /start
 @bot.message_handler(commands=['start'])
-def start_message(message):
-    bot.send_message(message.chat.id, "Бот работает.")
+def send_welcome(message):
+    bot.reply_to(message, "Привет! Я работаю!")
 
-@app.route(f"/{API_TOKEN}", methods=["POST"])
+# Обработка слов "привет" и "hi"
+@bot.message_handler(func=lambda message: message.text.lower() in ["привет", "hi"])
+def reply_to_greeting(message):
+    bot.reply_to(message, "Привет! Чем могу помочь?")
+
+# Webhook
+@app.route('/', methods=['POST'])
 def webhook():
     json_str = request.get_data().decode('UTF-8')
     update = telebot.types.Update.de_json(json_str)
     bot.process_new_updates([update])
-    return "!", 200
+    return "ok", 200
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
     bot.remove_webhook()
-    bot.set_webhook(url=os.getenv("RENDER_EXTERNAL_URL") + "/" + API_TOKEN)
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    bot.set_webhook(url=os.environ.get("WEBHOOK_URL"))
+    app.run(host="0.0.0.0", port=port)
